@@ -1,2 +1,5 @@
 #WebStorm
 .idea/
+
+#NPM
+node_modules/
