@@ -86,6 +86,22 @@ class EndpointModel {
         });
     }
 
+    public putJson(mac_id: string, json: string, version: number, callback: (err: Error, data: EndpointRetVal) => void): void {
+
+        // TODO Write
+        this.database.serialize(() => {
+            this.database.run("UPDATE FILE_SYSTEM Set JSON = $JSON, VERSION = $VERSION Where TEAM = (select TEAM FROM ENDPOINT where MAC_ID = $MAC_ID);", {
+                $JSON: json,
+                $VERSION: version,
+                $MAC_ID: mac_id
+            }, (err) => {
+                if (err) this.callBack(err, {status: false, error: true, data: err.message}, "putJson", callback);
+                else this.callBack(err, {status: true, error: false, data: json}, "putJson", callback);
+
+            });
+        });
+    }
+
     private callBack(err: Error, data: EndpointRetVal, fnCall: string, callback: (err: Error, data: EndpointRetVal) => void): void {
         if (data.error) this.logger.error(`EndpointModel[${fnCall}] -> ${JSON.stringify(data)}`);
         else this.logger.debug(`EndpointModel[${fnCall}] -> ${JSON.stringify(data)}`);

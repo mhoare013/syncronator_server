@@ -10,7 +10,7 @@ class SocketIO {
 
     private readonly express: express.Application;
     private readonly logger: LoggerInstance;
-    private database: Database;
+    private readonly database: Database;
     private server: Server;
     private socketIO: SocketIO.Server;
     private readonly SOCKET_PORT: number;
@@ -43,10 +43,22 @@ class SocketIO {
                 });
             });
 
-            socket.on("json", (mac_id) => {
+            socket.on("get_json", (mac_id) => {
                 this.EndpointModel.getJson(mac_id, (err, data) => {
                     socket.emit("json", data);
                 });
+            });
+
+            socket.on("put_json", (data) => {
+
+                const mac_id = data.mac_id;
+                const version = data.version;
+                const json = data.json;
+
+                this.EndpointModel.putJson(mac_id, json, version, (err, data) => {
+                    socket.emit("json", data);
+                });
+
             });
 
 
