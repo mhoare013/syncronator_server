@@ -43,7 +43,10 @@ class SocketIO {
                 });
             });
 
-            socket.on("get_json", (mac_id) => {
+            socket.on("get_json", (data) => {
+
+                const mac_id = data.mac_id;
+
                 this.EndpointModel.getJson(mac_id, (err, data) => {
                     socket.emit("json", data);
                 });

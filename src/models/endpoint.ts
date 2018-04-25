@@ -88,7 +88,6 @@ class EndpointModel {
 
     public putJson(mac_id: string, json: string, version: number, callback: (err: Error, data: EndpointRetVal) => void): void {
 
-        // TODO Write
         this.database.serialize(() => {
             this.database.run("UPDATE FILE_SYSTEM Set JSON = $JSON, VERSION = $VERSION Where TEAM = (select TEAM FROM ENDPOINT where MAC_ID = $MAC_ID);", {
                 $JSON: json,
