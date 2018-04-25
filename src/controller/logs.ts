@@ -36,7 +36,7 @@ class Logger {
             if (err) {
                 res.status(500).send("Error");
             } else {
-                res.render("logs", {logs: nl2br(data.toString(), true)});
+                res.render("logs", {logs: data.toString().split("\n")});
             }
         });
     }
