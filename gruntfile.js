@@ -41,6 +41,7 @@ module.exports = function (grunt) {
         },
         clean: {
             dist: ["./deploy"],
+            src: ["./deploy/src"],
             tscache: [".tscache"]
         }
     });
@@ -55,4 +56,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask("clean_build",
         ["tslint:all", "clean:dist", "ts:build", "mkdir:volume", "copy:resources", "clean:tscache"]);
+
+    grunt.registerTask("src_build",
+        ["tslint:all", "clean:src", "ts:build", "copy:resources", "clean:tscache"]);
 };
