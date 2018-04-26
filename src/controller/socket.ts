@@ -1,5 +1,5 @@
 import * as express from "express";
-import { createServer, Server } from "http";
+import { createServer , Server } from "http";
 import * as SocketIOLibrary from "socket.io";
 import { Database } from "sqlite3";
 import { EndpointModel } from "../models/index";
@@ -35,12 +35,20 @@ class SocketIO {
             this.logger.debug(`$SocketIO[connect] -> ${socket.id} connected`);
 
 
-            socket.on("join_room", (data) => {
-                this.EndpointModel.lookUpTeam(data.mac_id, (err, data) => {
-                    socket["room"] = data.data;
-                    socket.join(data.data);
-                    socket.emit("info", {team: data.data});
-                });
+            // socket.on("join_room", (data) => {
+            //     this.EndpointModel.lookUpTeam(data.mac_id, (err, data) => {
+            //         socket["room"] = data.data;
+            //         socket.join(data.data);
+            //         socket.emit("info", {team: data.data});
+            //     });
+            // });
+
+            socket.on("p2p", (data) => {
+                const mac_id = data.mac_id;
+                const pass_message = data.pass_message;
+
+                socket.broadcast.emit(mac_id, pass_message);
+
             });
 
             socket.on("get_json", (data) => {
