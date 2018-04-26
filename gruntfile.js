@@ -35,7 +35,8 @@ module.exports = function (grunt) {
         copy: {
             resources: {
                 files: [
-                    {expand: true, cwd: 'src/', src: ['resources/**'], dest: 'deploy/src/'}
+                    {expand: true, cwd: 'src/', src: ['resources/**'], dest: 'deploy/src/'},
+                    {expand: true, cwd: '.', src: ['package.json'], dest: 'deploy/'}
                 ]
             }
         },
