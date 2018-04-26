@@ -65,9 +65,13 @@ class SocketIO {
                 this.logger.debug(`$SocketIO[putJson] -> ${socket.id} ${JSON.stringify(data)}`);
 
                 this.EndpointModel.putJson(mac_id, json, version, (err, data) => {
-                    socket.emit("json", data);
-                    this.socketIO.in(socket["room"]).emit("update_json", {json: json, version: version});
+                    socket.broadcast.emit("update_json", data);
                 });
+
+            });
+
+
+            socket.on("get_active", (data) => {
 
             });
 

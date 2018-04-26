@@ -90,7 +90,7 @@ class EndpointModel {
 
         this.database.serialize(() => {
             this.database.run("UPDATE FILE_SYSTEM Set JSON = $JSON, VERSION = $VERSION Where TEAM = (select TEAM FROM ENDPOINT where MAC_ID = $MAC_ID);", {
-                $JSON: json,
+                $JSON: JSON.stringify(json),
                 $VERSION: version,
                 $MAC_ID: mac_id
             }, (err) => {

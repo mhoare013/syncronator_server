@@ -1,10 +1,21 @@
 <html>
 
+<head>
+    <title>Log</title>
+</head>
+
 <body>
 
 <% for (var i = logs.length - 1; i >= 0; i--) { %>
 <%= logs[i] %> <br/>
 <% } %>
 </body>
+
+<script type="text/javascript">
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000)
+</script>
 
 </html>

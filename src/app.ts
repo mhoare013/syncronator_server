@@ -116,8 +116,8 @@ class App {
         this.logger = new (winston.Logger)({
             levels: {
                 debug: 1,
-                express: 2,
-                error: 3,
+                error: 2,
+                express: 3,
                 info: 4,
             },
             transports: [
@@ -133,12 +133,12 @@ class App {
                 }),
                 new (winston.transports.File)({
                     name: "file#debug",
-                    level: "debug",
+                    level: "error",
                     filename: `${this.rootDir}/volume/logs/debug.txt`,
                     json: false,
                     formatter: (format) => {
-                        if (format.level === "debug")
-                            return `[${moment().format("MMMM Do YYYY, h:mm:ss a")}] | ${format.message.trim()}`;
+                        if (format.level === "debug" || format.level === "error")
+                            return `(${format.level.toUpperCase()}) -> [${moment().format("MMMM Do YYYY, h:mm:ss a")}] | ${format.message.trim()}`;
                         else
                             return "";
                     }
@@ -162,6 +162,8 @@ class App {
     }
 
     private setupRelayServer() {
+        const relayServer = require("node-tcp-relay");
+        const newRelayServer = relayServer.createRelayServer(10080, 10081);
 
     }
 }
