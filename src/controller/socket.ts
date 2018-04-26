@@ -1,4 +1,3 @@
-import { Data } from "ejs";
 import * as express from "express";
 import { createServer, Server } from "http";
 import * as SocketIOLibrary from "socket.io";
@@ -36,10 +35,11 @@ class SocketIO {
             this.logger.debug(`$SocketIO[connect] -> ${socket.id} connected`);
 
 
-            // Send your ID
-            socket.on("teamLookUp", (mac_id) => {
-                this.EndpointModel.lookUpTeam(mac_id, (err, data) => {
-                    socket.emit("team", data);
+            socket.on("join_room", (data) => {
+                this.EndpointModel.lookUpTeam(data.mac_id, (err, data) => {
+                    socket["room"] = data.data;
+                    socket.join(data.data);
+                    socket.emit("info", {team: data.data});
                 });
             });
 
@@ -47,9 +47,14 @@ class SocketIO {
 
                 const mac_id = data.mac_id;
 
-                this.EndpointModel.getJson(mac_id, (err, data) => {
-                    socket.emit("json", data);
-                });
+                if (mac_id) {
+                    this.EndpointModel.getJson(mac_id, (err, data) => {
+                        socket.emit("json", data);
+                    });
+                } else {
+                    this.logger.error(`$SocketIO[get_json] -> ${socket.id} NO MAC_ID`);
+                }
+
             });
 
             socket.on("put_json", (data) => {
@@ -57,9 +62,11 @@ class SocketIO {
                 const mac_id = data.mac_id;
                 const version = data.version;
                 const json = data.json;
+                this.logger.debug(`$SocketIO[putJson] -> ${socket.id} ${JSON.stringify(data)}`);
 
                 this.EndpointModel.putJson(mac_id, json, version, (err, data) => {
                     socket.emit("json", data);
+                    this.socketIO.in(socket["room"]).emit("update_json", {json: json, version: version});
                 });
 
             });
