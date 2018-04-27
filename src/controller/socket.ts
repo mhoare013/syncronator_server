@@ -43,10 +43,16 @@ class SocketIO {
             //     });
             // });
 
+            socket.on("get_active", (data) => {
+                socket.broadcast.emit("active", data);
+            });
+
             socket.on("p2p", (data) => {
+
                 const mac_id = data.mac_id;
                 const pass_message = data.pass_message;
 
+                this.logger.debug(`$SocketIO[p2p] -> ${socket.id} Event: ${mac_id} pass_message: ${pass_message}`);
                 socket.broadcast.emit(mac_id, pass_message);
 
             });
