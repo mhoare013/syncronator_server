@@ -41,28 +41,30 @@ class EndpointModel {
             this.lookUpTeam(mac_id, (err, data) => {
                 if (!data.data) {
                     // Team wasn't Made
-                    this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
+                    this.database.get("SELECT TEAM FROM FILE_SYSTEM WHERE TEAM = $TEAM", {$TEAM: team}, (err, row) => {
                         if (err) this.callBack(err, {
                             status: false,
                             error: true,
                             data: err.message
                         }, "joinTeam", callback);
+                        else {
+                            if (!row) {
+                                this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
+
+                                });
+                            }
+                            // Put in Team
+                            this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
+                                this.callBack(undefined, {
+                                    status: true,
+                                    error: false,
+                                    data: team
+                                }, "joinTeam", callback);
+                            });
+
+                        }
                     });
                 }
-
-                // Put in Team
-                this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
-                    if (err) this.callBack(err, {
-                        status: false,
-                        error: true,
-                        data: err.message
-                    }, "joinTeam", callback);
-                    this.callBack(undefined, {
-                        status: true,
-                        error: false,
-                        data: team
-                    }, "joinTeam", callback);
-                });
             });
         });
     }
@@ -77,11 +79,13 @@ class EndpointModel {
                     error: true,
                     data: err.message
                 }, "getJson", callback);
-                this.callBack(undefined, {
-                    status: row !== undefined,
-                    error: false,
-                    data: row ? JSON.parse(row.JSON) : undefined
-                }, "getJson", callback);
+                else {
+                    this.callBack(undefined, {
+                        status: row !== undefined,
+                        error: false,
+                        data: row ? JSON.parse(row.JSON) : undefined
+                    }, "getJson", callback);
+                }
             });
         });
     }
