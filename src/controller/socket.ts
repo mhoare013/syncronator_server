@@ -1,5 +1,5 @@
 import * as express from "express";
-import { createServer , Server } from "http";
+import { createServer, Server } from "http";
 import * as SocketIOLibrary from "socket.io";
 import { Database } from "sqlite3";
 import { EndpointModel } from "../models/index";

@@ -51,7 +51,7 @@ class EndpointModel {
                 }
 
                 // Put in Team
-                this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (error) => {
+                this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
                     if (err) this.callBack(err, {
                         status: false,
                         error: true,
