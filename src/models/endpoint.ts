@@ -1,12 +1,17 @@
 import { Database } from "sqlite3";
 import { LoggerInstance } from "winston";
 
+// Json that all Endpoint must return
+// status: if the op actually happend or not
+// error: if an error happen or not
+// data: value of the call
 interface EndpointRetVal {
     status: boolean;
     error: boolean;
     data: string;
 }
 
+// Model of the Endpoint(Clients) and what operations can be done
 class EndpointModel {
 
     private database: Database;
@@ -17,6 +22,14 @@ class EndpointModel {
         this.logger = logger;
     }
 
+    /**
+     * Return result
+     *  team - if client is in a team
+     *  undefined - if client isn't in team
+     *
+     * @param {string} mac_id - mac_address of client
+     * @param {(err: Error, data: EndpointRetVal) => void} callback - callback to deal with results
+     */
     public lookUpTeam(mac_id: string, callback: (err: Error, data: EndpointRetVal) => void): void {
 
         this.database.serialize(() => {
@@ -35,6 +48,13 @@ class EndpointModel {
         });
     }
 
+    /**
+     * Allows a Client to Join a Team
+     *
+     * @param {string} mac_id - Client mac Address
+     * @param {string} team - Team that Client wants to join
+     * @param {(err: Error, data: EndpointRetVal) => void} callback - call back to deal with data
+     */
     public joinTeam(mac_id: string, team: string, callback: (err: Error, data: EndpointRetVal) => void): void {
 
         this.database.serialize(() => {
@@ -50,18 +70,32 @@ class EndpointModel {
                         else {
                             if (!row) {
                                 this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
-
+                                    if (err) {
+                                        if (err) this.callBack(err, {
+                                            status: false,
+                                            error: true,
+                                            data: err.message
+                                        }, "joinTeam", callback);
+                                    } else {
+                                        // Put in Team
+                                        this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
+                                            if (err) {
+                                                if (err) this.callBack(err, {
+                                                    status: false,
+                                                    error: true,
+                                                    data: err.message
+                                                }, "joinTeam", callback);
+                                            } else {
+                                                this.callBack(undefined, {
+                                                    status: true,
+                                                    error: false,
+                                                    data: team
+                                                }, "joinTeam", callback);
+                                            }
+                                        });
+                                    }
                                 });
                             }
-                            // Put in Team
-                            this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
-                                this.callBack(undefined, {
-                                    status: true,
-                                    error: false,
-                                    data: team
-                                }, "joinTeam", callback);
-                            });
-
                         }
                     });
                 }
@@ -69,6 +103,12 @@ class EndpointModel {
         });
     }
 
+    /**
+     *  Return the Json of the Team the Client is in
+     *
+     * @param {string} mac_id - mac address of Client
+     * @param {(err: Error, data: EndpointRetVal) => void} callback
+     */
     public getJson(mac_id: string, callback: (err: Error, data: EndpointRetVal) => void): void {
         this.database.serialize(() => {
             this.database.get("select JSON from FILE_SYSTEM where TEAM = (select TEAM from ENDPOINT where MAC_ID = $MAC_ID);", {
@@ -90,6 +130,14 @@ class EndpointModel {
         });
     }
 
+    /**
+     * Put updated Json in the DB for the Client Team
+     *
+     * @param {string} mac_id - mac adress of client
+     * @param {string} json - json to put in database
+     * @param {number} version - version of the json
+     * @param {(err: Error, data: EndpointRetVal) => void} callback
+     */
     public putJson(mac_id: string, json: string, version: number, callback: (err: Error, data: EndpointRetVal) => void): void {
 
         this.database.serialize(() => {
@@ -105,6 +153,13 @@ class EndpointModel {
         });
     }
 
+    /**
+     *
+     * @param {Error} err
+     * @param {EndpointRetVal} data
+     * @param {string} fnCall
+     * @param {(err: Error, data: EndpointRetVal) => void} callback
+     */
     private callBack(err: Error, data: EndpointRetVal, fnCall: string, callback: (err: Error, data: EndpointRetVal) => void): void {
         if (data.error) this.logger.error(`EndpointModel[${fnCall}] -> ${JSON.stringify(data)}`);
         else this.logger.debug(`EndpointModel[${fnCall}] -> ${JSON.stringify(data)}`);
