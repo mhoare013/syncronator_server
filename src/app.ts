@@ -12,6 +12,7 @@ import moment = require("moment");
 const sqlite3 = require("sqlite3").verbose();
 
 
+// Main Server Setup
 class App {
 
     private express: express.Application;
@@ -84,6 +85,9 @@ class App {
         this.logger.debug("Set up Express");
     }
 
+    /**
+     *  Api and Debug Http Endpoint
+     */
     private mountRoutes(): void {
 
         this.express.use("", new Controller.Log(this.logger).getRouter());
@@ -91,6 +95,7 @@ class App {
 
         this.logger.debug("Set up Express Routes");
     }
+
 
     private setupDB(): void {
 
@@ -161,9 +166,12 @@ class App {
         this.logger.debug("Set up Logger");
     }
 
+    /**
+     * Set's up the relay Server
+     */
     private setupRelayServer() {
         const relayServer = require("node-tcp-relay");
-        const newRelayServer = relayServer.createRelayServer(10080, 10081);
+        relayServer.createRelayServer(10080, 10081);
 
     }
 }

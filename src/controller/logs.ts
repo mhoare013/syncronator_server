@@ -2,8 +2,7 @@ import * as express from "express";
 import * as fs from "fs";
 import { LoggerInstance } from "winston";
 
-const nl2br = require("nl2br");
-
+// Logging Http Endpoint
 class Logger {
     private log_router = express.Router();
     private logger: LoggerInstance;

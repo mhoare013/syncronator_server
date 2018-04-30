@@ -1,6 +1,7 @@
 import { Database } from "sqlite3";
 import { LoggerInstance } from "winston";
 
+// Typescript interface so function will be force to return this
 interface EndpointRetVal {
     status: boolean;
     error: boolean;
@@ -47,22 +48,26 @@ class EndpointModel {
                             error: true,
                             data: err.message
                         }, "joinTeam", callback);
+
+                        else {
+                            // Put in Team
+                            this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
+                                if (err) this.callBack(err, {
+                                    status: false,
+                                    error: true,
+                                    data: err.message
+                                }, "joinTeam", callback);
+                                else {
+                                    this.callBack(undefined, {
+                                        status: true,
+                                        error: false,
+                                        data: team
+                                    }, "joinTeam", callback);
+                                }
+                            });
+                        }
                     });
                 }
-
-                // Put in Team
-                this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
-                    if (err) this.callBack(err, {
-                        status: false,
-                        error: true,
-                        data: err.message
-                    }, "joinTeam", callback);
-                    this.callBack(undefined, {
-                        status: true,
-                        error: false,
-                        data: team
-                    }, "joinTeam", callback);
-                });
             });
         });
     }
@@ -77,11 +82,13 @@ class EndpointModel {
                     error: true,
                     data: err.message
                 }, "getJson", callback);
-                this.callBack(undefined, {
-                    status: row !== undefined,
-                    error: false,
-                    data: row ? JSON.parse(row.JSON) : undefined
-                }, "getJson", callback);
+                else {
+                    this.callBack(undefined, {
+                        status: row !== undefined,
+                        error: false,
+                        data: row ? JSON.parse(row.JSON) : undefined
+                    }, "getJson", callback);
+                }
             });
         });
     }

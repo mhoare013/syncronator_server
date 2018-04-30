@@ -21,6 +21,8 @@ class EndpointApi {
         this.setupRouter();
     }
 
+    t;
+
     public getRouter(): express.Router {
         return this.endpoint_api_router;
     }
