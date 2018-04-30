@@ -13,10 +13,17 @@ class Logger {
         this.setupRoutes();
     }
 
+    /**
+     * Return the Express Router for the /log url
+     * @returns {e.Router}
+     */
     public getRouter(): express.Router {
         return this.log_router;
     }
 
+    /**
+     * Set up paths
+     */
     private setupRoutes(): void {
 
         this.log_router.get("/logs/debug", (req, res) => {
@@ -29,6 +36,11 @@ class Logger {
 
     }
 
+    /**
+     * Helper function to read files and send back response
+     * @param {string} file - file nams
+     * @param {e.Response} res - response to send back to client
+     */
     private readFile(file: string, res: express.Response) {
 
         fs.readFile(`${this.volume_path}/${file}`, (err, data) => {
