@@ -23,6 +23,8 @@ class SocketIO {
         this.EndpointModel = new EndpointModel(this.database, this.logger);
     }
 
+    // Socket.IO calls
+
     public startSocketIO(): void {
         // Set up SocketIO
         this.server = createServer(this.express);
@@ -31,22 +33,16 @@ class SocketIO {
             this.logger.debug(`SocketIO Sever Start on Port -> ${this.SOCKET_PORT}`);
         });
 
+        // Client Connects
         this.socketIO.on("connect", (socket) => {
             this.logger.debug(`$SocketIO[connect] -> ${socket.id} connected`);
 
-
-            // socket.on("join_room", (data) => {
-            //     this.EndpointModel.lookUpTeam(data.mac_id, (err, data) => {
-            //         socket["room"] = data.data;
-            //         socket.join(data.data);
-            //         socket.emit("info", {team: data.data});
-            //     });
-            // });
-
+            // Tell everyone who is active
             socket.on("get_active", (data) => {
                 socket.broadcast.emit("active", data);
             });
 
+            // Boadcast a message on a client mac address
             socket.on("p2p", (data) => {
 
                 const mac_id = data.mac_id;
@@ -57,6 +53,7 @@ class SocketIO {
 
             });
 
+            // Send back JSON file view
             socket.on("get_json", (data) => {
 
                 const mac_id = data.mac_id;
@@ -71,6 +68,7 @@ class SocketIO {
 
             });
 
+            // Put JSON file view in the database
             socket.on("put_json", (data) => {
 
                 const mac_id = data.mac_id;
@@ -84,20 +82,13 @@ class SocketIO {
 
             });
 
-
-            socket.on("get_active", (data) => {
-
-            });
-
-
+            // Client disconnect
             socket.on("disconnect", () => {
                 this.logger.debug(`$SocketIO[disconnect] -> ${socket.id} disconnect`);
             });
 
         });
-
     }
-
 }
 
 export default SocketIO;
