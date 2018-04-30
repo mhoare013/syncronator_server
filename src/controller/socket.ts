@@ -39,6 +39,7 @@ class SocketIO {
 
             // Tell everyone who is active
             socket.on("get_active", (data) => {
+                this.logger.debug(`$SocketIO[get_active] -> ${socket.id} connected`);
                 socket.broadcast.emit("active", data);
             });
 

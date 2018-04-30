@@ -70,34 +70,26 @@ class EndpointModel {
                         else {
                             if (!row) {
                                 this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
-                                    if (err) {
-                                        if (err) this.callBack(err, {
-                                            status: false,
-                                            error: true,
-                                            data: err.message
-                                        }, "joinTeam", callback);
-                                    } else {
-                                        // Put in Team
-                                        this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
-                                            if (err) {
-                                                if (err) this.callBack(err, {
-                                                    status: false,
-                                                    error: true,
-                                                    data: err.message
-                                                }, "joinTeam", callback);
-                                            } else {
-                                                this.callBack(undefined, {
-                                                    status: true,
-                                                    error: false,
-                                                    data: team
-                                                }, "joinTeam", callback);
-                                            }
-                                        });
-                                    }
+
                                 });
                             }
+                            // Put in Team
+                            this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
+                                this.callBack(undefined, {
+                                    status: true,
+                                    error: false,
+                                    data: team
+                                }, "joinTeam", callback);
+                            });
+
                         }
                     });
+                } else {
+                    this.callBack(undefined, {
+                        status: true,
+                        error: false,
+                        data: team
+                    }, "joinTeam", callback);
                 }
             });
         });
