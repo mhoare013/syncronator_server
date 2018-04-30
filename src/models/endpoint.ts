@@ -1,7 +1,6 @@
 import { Database } from "sqlite3";
 import { LoggerInstance } from "winston";
 
-// Typescript interface so function will be force to return this
 interface EndpointRetVal {
     status: boolean;
     error: boolean;
@@ -42,29 +41,27 @@ class EndpointModel {
             this.lookUpTeam(mac_id, (err, data) => {
                 if (!data.data) {
                     // Team wasn't Made
-                    this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
+                    this.database.get("SELECT TEAM FROM FILE_SYSTEM WHERE TEAM = $TEAM", {$TEAM: team}, (err, row) => {
                         if (err) this.callBack(err, {
                             status: false,
                             error: true,
                             data: err.message
                         }, "joinTeam", callback);
-
                         else {
+                            if (!row) {
+                                this.database.run("INSERT INTO FILE_SYSTEM(TEAM) VALUES (?);", [team], (err) => {
+
+                                });
+                            }
                             // Put in Team
                             this.database.run("INSERT INTO ENDPOINT(MAC_ID, TEAM) VALUES (?,?);", [mac_id, team], (err) => {
-                                if (err) this.callBack(err, {
-                                    status: false,
-                                    error: true,
-                                    data: err.message
+                                this.callBack(undefined, {
+                                    status: true,
+                                    error: false,
+                                    data: team
                                 }, "joinTeam", callback);
-                                else {
-                                    this.callBack(undefined, {
-                                        status: true,
-                                        error: false,
-                                        data: team
-                                    }, "joinTeam", callback);
-                                }
                             });
+
                         }
                     });
                 }

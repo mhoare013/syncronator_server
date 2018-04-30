@@ -28,11 +28,15 @@ class EndpointApi {
     }
 
     private sendEndpointData(res: express.Response, data: EndpointRetVal): void {
-        res.setHeader("Content-Type", "application/json");
-        res.status(data.error ? 500 : 200).json({
-            status: data.status,
-            message: data.data || "undefined"
-        });
+        try {
+            res.setHeader("Content-Type", "application/json");
+            res.status(data.error ? 500 : 200).json({
+                status: data.status,
+                message: data.data || "undefined"
+            });
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     private sendApiRespone(res: express.Response, status: number, data: EndpointApiResponse): void {
@@ -60,9 +64,9 @@ class EndpointApi {
             const mac_id = req.body.mac_id;
 
             if (mac_id) {
-                this.EndpointModel.lookUpTeam(mac_id, ((err, data) => {
+                this.EndpointModel.lookUpTeam(mac_id, (err, data) => {
                     this.sendEndpointData(res, data);
-                }));
+                });
             } else {
                 this.sendApiRespone(res, 400, {status: false, message: "No mac_id"});
             }
